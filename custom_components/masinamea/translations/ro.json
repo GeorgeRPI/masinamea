@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurează Mașina Mea",
+        "description": "Introdu datele mașinii tale",
+        "data": {
+          "nume_auto": "Numele mașinii",
+          "nr_inmatriculare": "Număr înmatriculare",
+          "marca": "Marca",
+          "model": "Modelul",
+          "capacitate_cilindrica": "Capacitate cilindrică (cm³)",
+          "km_curenti": "Kilometraj curent",
+          "data_itp": "Data ultimului ITP (DD.MM.YYYY)",
+          "itp_expira": "Data expirării ITP (DD.MM.YYYY)",
+          "data_rovinieta": "Data achiziției rovinietei (DD.MM.YYYY)",
+          "rovinieta_expira": "Data expirării rovinietei (DD.MM.YYYY)",
+          "data_revizie": "Data ultimei revizii (DD.MM.YYYY)",
+          "km_revizie": "Kilometraj la ultima revizie",
+          "schimb_ulei": "S-a schimbat uleiul?",
+          "schimb_filtru_ulei": "S-a schimbat filtrul de ulei?",
+          "schimb_filtru_aer": "S-a schimbat filtrul de aer?",
+          "schimb_filtru_combustibil": "S-a schimbat filtrul de combustibil?"
+        }
+      }
+    },
+    "error": {
+      "invalid_date": "Data introdusă nu este validă. Folosește formatul DD.MM.YYYY (exemplu: 15.03.2024)",
+      "invalid_plate": "Numărul de înmatriculare nu este valid. Exemplu: B 123 ABC"
+    },
+    "abort": {
+      "already_configured": "Mașina este deja configurată"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Editează datele mașinii",
+        "description": "Modifică informațiile mașinii tale",
+        "data": {
+          "nume_auto": "Numele mașinii",
+          "nr_inmatriculare": "Număr înmatriculare",
+          "marca": "Marca",
+          "model": "Modelul",
+          "capacitate_cilindrica": "Capacitate cilindrică (cm³)",
+          "km_curenti": "Kilometraj curent",
+          "data_itp": "Data ultimului ITP (DD.MM.YYYY)",
+          "itp_expira": "Data expirării ITP (DD.MM.YYYY)",
+          "data_rovinieta": "Data achiziției rovinietei (DD.MM.YYYY)",
+          "rovinieta_expira": "Data expirării rovinietei (DD.MM.YYYY)",
+          "data_revizie": "Data ultimei revizii (DD.MM.YYYY)",
+          "km_revizie": "Kilometraj la ultima revizie",
+          "schimb_ulei": "S-a schimbat uleiul?",
+          "schimb_filtru_ulei": "S-a schimbat filtrul de ulei?",
+          "schimb_filtru_aer": "S-a schimbat filtrul de aer?",
+          "schimb_filtru_combustibil": "S-a schimbat filtrul de combustibil?"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "itp_status": {
+        "name": "Status ITP",
+        "state": {
+          "activ": "Activ ✅",
+          "expirat": "Expirat ❌",
+          "aproape_expirare": "Aproape de expirare ⚠️",
+          "urgent": "URGENT! 🔴"
+        }
+      },
+      "rovinieta_status": {
+        "name": "Status Rovinietă",
+        "state": {
+          "activ": "Activă ✅",
+          "expirat": "Expirată ❌",
+          "aproape_expirare": "Aproape de expirare ⚠️",
+          "urgent": "URGENT! 🔴"
+        }
+      }
+    }
+  }
+}
