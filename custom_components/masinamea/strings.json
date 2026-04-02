@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurează Mașina Mea",
+        "description": "Introdu datele mașinii tale",
+        "data": {
+          "nume_auto": "Numele mașinii",
+          "nr_inmatriculare": "Număr înmatriculare",
+          "marca": "Marca",
+          "model": "Modelul",
+          "capacitate_cilindrica": "Capacitate cilindrică (cm³)",
+          "km_curenti": "Kilometraj curent",
+          "data_itp": "Data ultimului ITP (DD.MM.YYYY)",
+          "itp_expira": "Data expirării ITP (DD.MM.YYYY)",
+          "data_rovinieta": "Data achiziției rovinietei (DD.MM.YYYY)",
+          "rovinieta_expira": "Data expirării rovinietei (DD.MM.YYYY)",
+          "data_revizie": "Data ultimei revizii (DD.MM.YYYY)",
+          "km_revizie": "Kilometraj la ultima revizie",
+          "schimb_ulei": "S-a schimbat uleiul?",
+          "schimb_filtru_ulei": "S-a schimbat filtrul de ulei?",
+          "schimb_filtru_aer": "S-a schimbat filtrul de aer?",
+          "schimb_filtru_combustibil": "S-a schimbat filtrul de combustibil?"
+        }
+      }
+    },
+    "error": {
+      "invalid_date": "Data introdusă nu este validă. Folosește formatul DD.MM.YYYY",
+      "invalid_plate": "Numărul de înmatriculare nu este valid"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Editează Mașina Mea",
+        "description": "Modifică informațiile mașinii",
+        "data": {
+          "nume_auto": "Numele mașinii",
+          "nr_inmatriculare": "Număr înmatriculare",
+          "marca": "Marca",
+          "model": "Modelul",
+          "capacitate_cilindrica": "Capacitate cilindrică (cm³)",
+          "km_curenti": "Kilometraj curent",
+          "data_itp": "Data ultimului ITP (DD.MM.YYYY)",
+          "itp_expira": "Data expirării ITP (DD.MM.YYYY)",
+          "data_rovinieta": "Data achiziției rovinietei (DD.MM.YYYY)",
+          "rovinieta_expira": "Data expirării rovinietei (DD.MM.YYYY)",
+          "data_revizie": "Data ultimei revizii (DD.MM.YYYY)",
+          "km_revizie": "Kilometraj la ultima revizie",
+          "schimb_ulei": "S-a schimbat uleiul?",
+          "schimb_filtru_ulei": "S-a schimbat filtrul de ulei?",
+          "schimb_filtru_aer": "S-a schimbat filtrul de aer?",
+          "schimb_filtru_combustibil": "S-a schimbat filtrul de combustibil?"
+        }
+      }
+    }
+  }
+}
