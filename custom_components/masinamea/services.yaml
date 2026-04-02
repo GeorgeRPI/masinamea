@@ -1,0 +1,102 @@
+update_km:
+  name: Actualizează kilometraj
+  description: Actualizează kilometrajul curent al mașinii
+  fields:
+    km:
+      name: Kilometraj
+      description: Kilometrajul curent
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          unit_of_measurement: "km"
+
+update_itp:
+  name: Actualizează ITP
+  description: Actualizează datele ITP
+  fields:
+    data_efectuare:
+      name: Data efectuare
+      description: Data când s-a făcut ITP-ul (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+    data_expirare:
+      name: Data expirare
+      description: Data când expiră ITP-ul (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+
+update_rovinieta:
+  name: Actualizează rovinietă
+  description: Actualizează datele rovinietei
+  fields:
+    data_achizitie:
+      name: Data achiziție
+      description: Data când s-a achiziționat rovinieta (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+    data_expirare:
+      name: Data expirare
+      description: Data când expiră rovinieta (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+
+update_revizie:
+  name: Actualizează revizie
+  description: Înregistrează o nouă revizie
+  fields:
+    data:
+      name: Data revizie
+      description: Data când s-a făcut revizia (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+    km:
+      name: Kilometraj revizie
+      description: Kilometrajul la care s-a făcut revizia
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          unit_of_measurement: "km"
+    schimb_ulei:
+      name: Schimb ulei
+      description: S-a schimbat uleiul?
+      required: false
+      selector:
+        boolean:
+    schimb_filtru_ulei:
+      name: Schimb filtru ulei
+      description: S-a schimbat filtrul de ulei?
+      required: false
+      selector:
+        boolean:
+    schimb_filtru_aer:
+      name: Schimb filtru aer
+      description: S-a schimbat filtrul de aer?
+      required: false
+      selector:
+        boolean:
+    schimb_filtru_combustibil:
+      name: Schimb filtru combustibil
+      description: S-a schimbat filtrul de combustibil?
+      required: false
+      selector:
+        boolean:
+
+update_plate:
+  name: Actualizează număr înmatriculare
+  description: Actualizează numărul de înmatriculare al mașinii
+  fields:
+    numar:
+      name: Număr înmatriculare
+      description: Numărul de înmatriculare (ex:B 123 ABC)
+      required: true
+      selector:
+        text:
