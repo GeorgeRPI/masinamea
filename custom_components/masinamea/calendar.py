@@ -10,141 +10,143 @@ from .const import (
     CONF_ROVINIETA_EXPIRA,
     CONF_DATA_REVIZIE,
     ITP_PRAG_AVERTISMENT,
-    ROVINIETA_PRAG_AVERTISMENT
+    ROVINIETA_PRAG_AVERTISMENT,
+    parse_date,  # FIX: funcție centralizată din const.py
 )
 
-def parse_date(date_str):
-    """Convertește data din format DD.MM.YYYY în obiect date."""
-    if not date_str:
-        return None
-    try:
-        return datetime.strptime(date_str, "%d.%m.%Y").date()
-    except:
-        return None
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Configurează calendarul."""
-    data = config_entry.data
-    async_add_entities([CarCalendar(data)], True)
+    # FIX: citim din hass.data (include și options) în loc de config_entry.data direct
+    data = hass.data[DOMAIN][config_entry.entry_id]
+    entry_id = config_entry.entry_id
+    async_add_entities([CarCalendar(data, entry_id)], True)
 
 
 class CarCalendar(CalendarEntity):
     """Calendar cu evenimentele mașinii."""
 
-    def __init__(self, data):
+    def __init__(self, data: dict, entry_id: str):
         self._data = data
+        self._entry_id = entry_id
         self._attr_name = f"{data[CONF_NUME_AUTO]} Calendar"
-        self._attr_unique_id = f"{data[CONF_NUME_AUTO]}_calendar"
+        # FIX: unique_id include entry_id
+        self._attr_unique_id = f"{entry_id}_calendar"
+
+    # ------------------------------------------------------------------ #
+    # Proprietatea "event" — FIX: returnează CalendarEvent, nu dict       #
+    # ------------------------------------------------------------------ #
 
     @property
-    def event(self):
-        """Returnează următorul eveniment."""
-        events = self._get_events()
-        if events:
-            return events[0]
-        return None
-
-    async def async_get_events(self, hass, start_date, end_date):
-        """Returnează evenimentele dintr-un interval."""
-        events = []
-        
-        # Adaugă eveniment ITP
-        itp_expiry_str = self._data.get(CONF_ITP_EXPIRA)
-        if itp_expiry_str:
-            expiry_date = parse_date(itp_expiry_str)
-            if expiry_date:
-                if start_date.date() <= expiry_date <= end_date.date():
-                    events.append(CalendarEvent(
-                        start=expiry_date,
-                        end=expiry_date + timedelta(days=1),
-                        summary=f"ITP expiră pentru {self._data.get(CONF_NUME_AUTO)}",
-                        description=f"ITP-ul expiră pe {expiry_date.strftime('%d.%m.%Y')}. Programează o inspecție tehnică periodică.\n\nNumăr înmatriculare: {self._data.get(CONF_NR_INMATRICULARE, 'Necunoscut')}"
-                    ))
-        
-        # Adaugă eveniment Rovinietă
-        rovinieta_expiry_str = self._data.get(CONF_ROVINIETA_EXPIRA)
-        if rovinieta_expiry_str:
-            expiry_date = parse_date(rovinieta_expiry_str)
-            if expiry_date:
-                if start_date.date() <= expiry_date <= end_date.date():
-                    events.append(CalendarEvent(
-                        start=expiry_date,
-                        end=expiry_date + timedelta(days=1),
-                        summary=f"Rovinieta expiră pentru {self._data.get(CONF_NUME_AUTO)}",
-                        description=f"Rovinieta expiră pe {expiry_date.strftime('%d.%m.%Y')}. Achiziționează o nouă rovinietă.\n\nNumăr înmatriculare: {self._data.get(CONF_NR_INMATRICULARE, 'Necunoscut')}"
-                    ))
-        
-        # Adaugă reminder revizie (la 6 luni după ultima revizie)
-        service_date_str = self._data.get(CONF_DATA_REVIZIE)
-        if service_date_str:
-            service_date = parse_date(service_date_str)
-            if service_date:
-                reminder_date = service_date + timedelta(days=180)  # 6 luni
-                if start_date.date() <= reminder_date <= end_date.date():
-                    events.append(CalendarEvent(
-                        start=reminder_date,
-                        end=reminder_date + timedelta(days=1),
-                        summary=f"Revizie recomandată pentru {self._data.get(CONF_NUME_AUTO)}",
-                        description=f"Au trecut 6 luni de la ultima revizie ({service_date.strftime('%d.%m.%Y')}). Verifică starea mașinii.\n\nNumăr înmatriculare: {self._data.get(CONF_NR_INMATRICULARE, 'Necunoscut')}"
-                    ))
-        
-        # Adaugă reminder ITP (cu 30 zile înainte)
-        itp_expiry_str = self._data.get(CONF_ITP_EXPIRA)
-        if itp_expiry_str:
-            expiry_date = parse_date(itp_expiry_str)
-            if expiry_date:
-                reminder_date = expiry_date - timedelta(days=ITP_PRAG_AVERTISMENT)
-                if start_date.date() <= reminder_date <= end_date.date():
-                    events.append(CalendarEvent(
-                        start=reminder_date,
-                        end=reminder_date + timedelta(days=1),
-                        summary=f"ITP expiră în {ITP_PRAG_AVERTISMENT} zile",
-                        description=f"ITP-ul expiră pe {expiry_date.strftime('%d.%m.%Y')}. Programează inspecția tehnică periodică.\n\nNumăr înmatriculare: {self._data.get(CONF_NR_INMATRICULARE, 'Necunoscut')}"
-                    ))
-        
-        # Adaugă reminder Rovinietă (cu 7 zile înainte)
-        rovinieta_expiry_str = self._data.get(CONF_ROVINIETA_EXPIRA)
-        if rovinieta_expiry_str:
-            expiry_date = parse_date(rovinieta_expiry_str)
-            if expiry_date:
-                reminder_date = expiry_date - timedelta(days=ROVINIETA_PRAG_AVERTISMENT)
-                if start_date.date() <= reminder_date <= end_date.date():
-                    events.append(CalendarEvent(
-                        start=reminder_date,
-                        end=reminder_date + timedelta(days=1),
-                        summary=f"Rovinieta expiră în {ROVINIETA_PRAG_AVERTISMENT} zile",
-                        description=f"Rovinieta expiră pe {expiry_date.strftime('%d.%m.%Y')}. Achiziționează o nouă rovinietă.\n\nNumăr înmatriculare: {self._data.get(CONF_NR_INMATRICULARE, 'Necunoscut')}"
-                    ))
-        
-        return events
-
-    def _get_events(self):
-        """Returnează toate evenimentele viitoare."""
-        events = []
+    def event(self) -> CalendarEvent | None:
+        """Returnează cel mai apropiat eveniment viitor."""
         today = date.today()
-        
-        # ITP
-        itp_expiry_str = self._data.get(CONF_ITP_EXPIRA)
-        if itp_expiry_str:
-            expiry_date = parse_date(itp_expiry_str)
-            if expiry_date and expiry_date >= today:
-                events.append({
-                    "start": expiry_date,
-                    "summary": f"ITP expiră pentru {self._data.get(CONF_NUME_AUTO)}",
-                    "days_left": (expiry_date - today).days
-                })
-        
-        # Rovinietă
-        rovinieta_expiry_str = self._data.get(CONF_ROVINIETA_EXPIRA)
-        if rovinieta_expiry_str:
-            expiry_date = parse_date(rovinieta_expiry_str)
-            if expiry_date and expiry_date >= today:
-                events.append({
-                    "start": expiry_date,
-                    "summary": f"Rovinieta expiră pentru {self._data.get(CONF_NUME_AUTO)}",
-                    "days_left": (expiry_date - today).days
-                })
-        
-        # Sortează după dată
-        events.sort(key=lambda x: x["start"])
+        today_dt = datetime.combine(today, datetime.min.time())
+        far_future = today_dt + timedelta(days=365 * 5)
+
+        # Obținem evenimentele din intervalul de azi până în 5 ani
+        events = self._build_events(today_dt, far_future)
+        if not events:
+            return None
+        # Sortăm și returnăm primul eveniment viitor
+        events.sort(key=lambda e: e.start)
+        return events[0]
+
+    # ------------------------------------------------------------------ #
+    # async_get_events — interfața oficială HA                            #
+    # ------------------------------------------------------------------ #
+
+    async def async_get_events(
+        self,
+        hass,
+        start_date: datetime,
+        end_date: datetime,
+    ) -> list[CalendarEvent]:
+        """Returnează evenimentele dintr-un interval."""
+        return self._build_events(start_date, end_date)
+
+    # ------------------------------------------------------------------ #
+    # Construire evenimente                                               #
+    # ------------------------------------------------------------------ #
+
+    def _build_events(
+        self,
+        start_date: datetime,
+        end_date: datetime,
+    ) -> list[CalendarEvent]:
+        """Construiește lista de CalendarEvent pentru intervalul dat."""
+        events: list[CalendarEvent] = []
+        nr = self._data.get(CONF_NR_INMATRICULARE, "Necunoscut")
+        name = self._data.get(CONF_NUME_AUTO, "Mașina mea")
+
+        def in_range(d: date) -> bool:
+            """Verifică dacă o dată se află în intervalul cerut."""
+            return start_date.date() <= d <= end_date.date()
+
+        def make_event(d: date, summary: str, description: str) -> CalendarEvent:
+            return CalendarEvent(
+                start=d,
+                end=d + timedelta(days=1),
+                summary=summary,
+                description=description,
+            )
+
+        # --- ITP: expirare ---
+        itp_expiry = parse_date(self._data.get(CONF_ITP_EXPIRA))
+        if itp_expiry:
+            if in_range(itp_expiry):
+                events.append(make_event(
+                    itp_expiry,
+                    f"ITP expiră — {name}",
+                    f"ITP-ul expiră pe {itp_expiry.strftime('%d.%m.%Y')}.\n"
+                    f"Programează o inspecție tehnică periodică.\n"
+                    f"Nr. înmatriculare: {nr}",
+                ))
+            # ITP: reminder cu ITP_PRAG_AVERTISMENT zile înainte
+            reminder_itp = itp_expiry - timedelta(days=ITP_PRAG_AVERTISMENT)
+            if in_range(reminder_itp):
+                events.append(make_event(
+                    reminder_itp,
+                    f"Reminder: ITP expiră în {ITP_PRAG_AVERTISMENT} zile — {name}",
+                    f"ITP-ul expiră pe {itp_expiry.strftime('%d.%m.%Y')}.\n"
+                    f"Programează inspecția tehnică periodică.\n"
+                    f"Nr. înmatriculare: {nr}",
+                ))
+
+        # --- Rovinietă: expirare ---
+        rov_expiry = parse_date(self._data.get(CONF_ROVINIETA_EXPIRA))
+        if rov_expiry:
+            if in_range(rov_expiry):
+                events.append(make_event(
+                    rov_expiry,
+                    f"Rovinieta expiră — {name}",
+                    f"Rovinieta expiră pe {rov_expiry.strftime('%d.%m.%Y')}.\n"
+                    f"Achiziționează o nouă rovinietă.\n"
+                    f"Nr. înmatriculare: {nr}",
+                ))
+            # Rovinietă: reminder cu ROVINIETA_PRAG_AVERTISMENT zile înainte
+            reminder_rov = rov_expiry - timedelta(days=ROVINIETA_PRAG_AVERTISMENT)
+            if in_range(reminder_rov):
+                events.append(make_event(
+                    reminder_rov,
+                    f"Reminder: Rovinieta expiră în {ROVINIETA_PRAG_AVERTISMENT} zile — {name}",
+                    f"Rovinieta expiră pe {rov_expiry.strftime('%d.%m.%Y')}.\n"
+                    f"Achiziționează o nouă rovinietă.\n"
+                    f"Nr. înmatriculare: {nr}",
+                ))
+
+        # --- Revizie: reminder la 6 luni după ultima revizie ---
+        service_date = parse_date(self._data.get(CONF_DATA_REVIZIE))
+        if service_date:
+            reminder_service = service_date + timedelta(days=180)
+            if in_range(reminder_service):
+                events.append(make_event(
+                    reminder_service,
+                    f"Revizie recomandată — {name}",
+                    f"Au trecut 6 luni de la ultima revizie "
+                    f"({service_date.strftime('%d.%m.%Y')}).\n"
+                    f"Verifică starea mașinii.\n"
+                    f"Nr. înmatriculare: {nr}",
+                ))
+
         return events
