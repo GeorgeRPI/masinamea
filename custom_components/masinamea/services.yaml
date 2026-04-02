@@ -2,6 +2,12 @@ update_km:
   name: Actualizează kilometraj
   description: Actualizează kilometrajul curent al mașinii
   fields:
+    entry_id:
+      name: ID integrare
+      description: entry_id-ul integrării (opțional dacă ai o singură mașină)
+      required: false
+      selector:
+        text:
     km:
       name: Kilometraj
       description: Kilometrajul curent
@@ -16,6 +22,12 @@ update_itp:
   name: Actualizează ITP
   description: Actualizează datele ITP
   fields:
+    entry_id:
+      name: ID integrare
+      description: entry_id-ul integrării (opțional dacă ai o singură mașină)
+      required: false
+      selector:
+        text:
     data_efectuare:
       name: Data efectuare
       description: Data când s-a făcut ITP-ul (DD.MM.YYYY)
@@ -33,6 +45,12 @@ update_rovinieta:
   name: Actualizează rovinietă
   description: Actualizează datele rovinietei
   fields:
+    entry_id:
+      name: ID integrare
+      description: entry_id-ul integrării (opțional dacă ai o singură mașină)
+      required: false
+      selector:
+        text:
     data_achizitie:
       name: Data achiziție
       description: Data când s-a achiziționat rovinieta (DD.MM.YYYY)
@@ -50,6 +68,12 @@ update_revizie:
   name: Actualizează revizie
   description: Înregistrează o nouă revizie
   fields:
+    entry_id:
+      name: ID integrare
+      description: entry_id-ul integrării (opțional dacă ai o singură mașină)
+      required: false
+      selector:
+        text:
     data:
       name: Data revizie
       description: Data când s-a făcut revizia (DD.MM.YYYY)
@@ -94,9 +118,15 @@ update_plate:
   name: Actualizează număr înmatriculare
   description: Actualizează numărul de înmatriculare al mașinii
   fields:
+    entry_id:
+      name: ID integrare
+      description: entry_id-ul integrării (opțional dacă ai o singură mașină)
+      required: false
+      selector:
+        text:
     numar:
       name: Număr înmatriculare
-      description: Numărul de înmatriculare (ex:B 123 ABC)
+      description: Numărul de înmatriculare (ex. B 123 ABC)
       required: true
       selector:
         text:
