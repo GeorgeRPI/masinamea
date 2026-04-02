@@ -3,9 +3,8 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![Home Assistant](https://img.shields.io/badge/Home_Assistant-2023.1%2B-green.svg)](https://www.home-assistant.io/)
 [![version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/GeorgeRPI/masinamea)
-[![maintenance](https://img.shields.io/badge/maintainer-GeorgeRPI-blue.svg)](https://github.com/GeorgeRPI)
 
-Integrare pentru Home Assistant care îți permite să gestionezi toate datele mașinii tale: kilometraj, ITP, rovinietă, revizii și multe altele.
+Integrare locala pentru Home Assistant care îți permite să gestionezi toate datele mașinii tale: kilometraj, ITP, rovinietă, revizii și multe altele.
 
 ## 📋 Funcționalități
 
