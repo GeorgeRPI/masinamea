@@ -44,7 +44,7 @@ Integrare locala pentru Home Assistant care îți permite să gestionezi toate d
 1. Deschide HACS în Home Assistant
 2. Click pe "Integrations"
 3. Click pe "Custom repositories"
-4. Adaugă URL-ul: `https://github.com/yourusername/masinamea`
+4. Adaugă URL-ul: `https://github.com/GeorgeRPI/masinamea`
 5. Selectează categoriile: "Integration"
 6. Click "Add"
 7. Găsește "Mașina Mea" în HACS și instalează
