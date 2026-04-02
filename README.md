@@ -1,8 +1,8 @@
 # Mașina Mea - Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
-[![version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/masinamea)
-[![maintenance](https://img.shields.io/badge/maintainer-yourname-blue.svg)](https://github.com/yourusername)
+[![version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/GeorgeRPI/masinamea)
+[![maintenance](https://img.shields.io/badge/maintainer-yourname-blue.svg)](https://github.com/GeorgeRPI)
 
 Integrare pentru Home Assistant care îți permite să gestionezi toate datele mașinii tale: kilometraj, ITP, rovinietă, revizii și multe altele.
 
