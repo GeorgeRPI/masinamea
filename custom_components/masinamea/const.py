@@ -1,5 +1,6 @@
 """Constante pentru integrarea Mașina Mea."""
 from homeassistant.const import Platform
+from datetime import datetime
 
 DOMAIN = "masinamea"
 PLATFORMS = [Platform.SENSOR, Platform.CALENDAR]
@@ -36,6 +37,25 @@ STATE_EXPIRAT = "expirat"
 STATE_APROAPE_EXPIRARE = "aproape_expirare"
 
 # Praguri expirare
-ITP_PRAG_AVERTISMENT = 30  # 30 zile
+ITP_PRAG_AVERTISMENT = 30       # 30 zile
 ROVINIETA_PRAG_AVERTISMENT = 7  # 7 zile
-PRAG_URGENT = 2  # 2 zile - pentru galben
+PRAG_URGENT = 2                 # 2 zile
+
+# Praguri revizie
+REVIZIE_KM_PRAG = 10000         # km
+REVIZIE_KM_AVERTISMENT = 8000   # km
+REVIZIE_ZILE_PRAG = 365         # 1 an
+REVIZIE_ZILE_AVERTISMENT = 300  # ~10 luni
+
+
+def parse_date(date_str: str | None):
+    """Convertește data din format DD.MM.YYYY în obiect date.
+    
+    Funcție centralizată — folosită în sensor.py, calendar.py și __init__.py.
+    """
+    if not date_str:
+        return None
+    try:
+        return datetime.strptime(date_str, "%d.%m.%Y").date()
+    except ValueError:
+        return None
