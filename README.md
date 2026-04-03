@@ -173,6 +173,7 @@ Integrarea adaugă automat un calendar în HA cu următoarele evenimente:
 ---
 
 ## 📋 Card
+Înlocuiește " masina_mea " cu numele mașinii tale (cu litere mici, spații → _)
 
 ```yaml
 
@@ -181,7 +182,7 @@ cards:
   - type: custom:mod-card
     card:
       type: entities
-      title: 🚗 Ford Focus
+      title: 🚗 Masina Mea
       entities:
         - type: custom:template-entity-row
           entity: sensor.masina_mea_informatii
