@@ -1,7 +1,6 @@
 """Senzori pentru integrarea Mașina Mea."""
 from datetime import date
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
-from homeassistant.const import STATE_UNKNOWN
+from homeassistant.components.sensor import SensorEntity
 
 from .const import (
     DOMAIN,
@@ -15,6 +14,8 @@ from .const import (
     CONF_ITP_EXPIRA,
     CONF_DATA_ROVINIETA,
     CONF_ROVINIETA_EXPIRA,
+    CONF_DATA_RCA,
+    CONF_RCA_EXPIRA,
     CONF_DATA_REVIZIE,
     CONF_KM_REVIZIE,
     CONF_SCHIMB_ULEI,
@@ -26,18 +27,18 @@ from .const import (
     STATE_APROAPE_EXPIRARE,
     ITP_PRAG_AVERTISMENT,
     ROVINIETA_PRAG_AVERTISMENT,
+    RCA_PRAG_AVERTISMENT,
     PRAG_URGENT,
     REVIZIE_KM_PRAG,
     REVIZIE_KM_AVERTISMENT,
     REVIZIE_ZILE_PRAG,
     REVIZIE_ZILE_AVERTISMENT,
-    parse_date,  # FIX: funcție centralizată în const.py, nu duplicată
+    parse_date,
 )
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Configurează senzorii."""
-    # FIX: citim din hass.data (care include și options) în loc de config_entry.data direct
     data = hass.data[DOMAIN][config_entry.entry_id]
     entry_id = config_entry.entry_id
 
@@ -55,6 +56,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         RovinietaStatusSensor(data, entry_id),
         RovinietaExpirySensor(data, entry_id),
         RovinietaUrgencySensor(data, entry_id),
+        # RCA
+        RcaStatusSensor(data, entry_id),
+        RcaExpirySensor(data, entry_id),
+        RcaUrgencySensor(data, entry_id),
         # Revizie
         ServiceInfoSensor(data, entry_id),
         ServiceKmSensor(data, entry_id),
@@ -65,7 +70,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 # ---------------------------------------------------------------------------
-# Clasă de bază — evită duplicarea de cod
+# Clasă de bază
 # ---------------------------------------------------------------------------
 
 class _BaseSensor(SensorEntity):
@@ -74,17 +79,16 @@ class _BaseSensor(SensorEntity):
     def __init__(self, data: dict, entry_id: str):
         self._data = data
         self._entry_id = entry_id
-        # Subclasele setează self._attr_name, self._attr_unique_id, self._attr_icon
 
-    def _days_until(self, conf_key: str) -> int | None:
-        """Returnează numărul de zile până la data din conf_key (negativ = expirat)."""
+    def _days_until(self, conf_key: str):
+        """Zile până la data din conf_key. Negativ = expirat. None = nedefinit."""
         d = parse_date(self._data.get(conf_key))
         if d is None:
             return None
         return (d - date.today()).days
 
-    def _expiry_status(self, days_left: int | None, prag_avertisment: int) -> str:
-        """Calculează starea generică pentru un document cu dată de expirare."""
+    def _expiry_status(self, days_left, prag_avertisment: int) -> str:
+        """Status generic pentru un document cu dată de expirare."""
         if days_left is None:
             return "nedefinit"
         if days_left < 0:
@@ -96,16 +100,28 @@ class _BaseSensor(SensorEntity):
         return STATE_ACTIV
 
     def _expiry_icon(self, status: str) -> str:
-        icons = {
+        """Iconița corespunzătoare statusului."""
+        return {
             STATE_EXPIRAT: "mdi:alert-circle",
             "urgent": "mdi:clock-alert",
             STATE_APROAPE_EXPIRARE: "mdi:clock-alert-outline",
-        }
-        return icons.get(status, "mdi:check-circle")
+        }.get(status, "mdi:check-circle")
+
+    def _urgency_level(self, days_left, prag_avertisment: int) -> str:
+        """Nivel urgență generic: nedefinit / ok / avertizare / urgent / critic."""
+        if days_left is None:
+            return "nedefinit"
+        if days_left < 0:
+            return "critic"
+        if days_left <= PRAG_URGENT:
+            return "urgent"
+        if days_left <= prag_avertisment:
+            return "avertizare"
+        return "ok"
 
 
 # ---------------------------------------------------------------------------
-# Senzori informații generale
+# Informații generale
 # ---------------------------------------------------------------------------
 
 class CarInfoSensor(_BaseSensor):
@@ -114,7 +130,6 @@ class CarInfoSensor(_BaseSensor):
     def __init__(self, data, entry_id):
         super().__init__(data, entry_id)
         self._attr_name = f"{data[CONF_NUME_AUTO]} Informații"
-        # FIX: unique_id include entry_id — evită conflicte la mașini cu același nume
         self._attr_unique_id = f"{entry_id}_info"
         self._attr_icon = "mdi:car-info"
 
@@ -179,7 +194,7 @@ class EngineCapacitySensor(_BaseSensor):
 
 
 # ---------------------------------------------------------------------------
-# Senzori ITP
+# ITP
 # ---------------------------------------------------------------------------
 
 class ItpStatusSensor(_BaseSensor):
@@ -193,8 +208,7 @@ class ItpStatusSensor(_BaseSensor):
 
     @property
     def state(self):
-        days = self._days_until(CONF_ITP_EXPIRA)
-        return self._expiry_status(days, ITP_PRAG_AVERTISMENT)
+        return self._expiry_status(self._days_until(CONF_ITP_EXPIRA), ITP_PRAG_AVERTISMENT)
 
     @property
     def icon(self):
@@ -223,9 +237,7 @@ class ItpExpirySensor(_BaseSensor):
     @property
     def state(self):
         days = self._days_until(CONF_ITP_EXPIRA)
-        if days is None:
-            return None
-        return max(0, days)
+        return None if days is None else max(0, days)
 
 
 class ItpUrgencySensor(_BaseSensor):
@@ -239,21 +251,11 @@ class ItpUrgencySensor(_BaseSensor):
 
     @property
     def state(self):
-        days = self._days_until(CONF_ITP_EXPIRA)
-        if days is None:
-            return "nedefinit"
-        if days < 0:
-            return "critic"
-        if days <= PRAG_URGENT:
-            return "urgent"
-        if days <= ITP_PRAG_AVERTISMENT:
-            # FIX: era "averizare" (typo) — corectat la "avertizare"
-            return "avertizare"
-        return "ok"
+        return self._urgency_level(self._days_until(CONF_ITP_EXPIRA), ITP_PRAG_AVERTISMENT)
 
 
 # ---------------------------------------------------------------------------
-# Senzori Rovinietă
+# Rovinietă
 # ---------------------------------------------------------------------------
 
 class RovinietaStatusSensor(_BaseSensor):
@@ -267,8 +269,7 @@ class RovinietaStatusSensor(_BaseSensor):
 
     @property
     def state(self):
-        days = self._days_until(CONF_ROVINIETA_EXPIRA)
-        return self._expiry_status(days, ROVINIETA_PRAG_AVERTISMENT)
+        return self._expiry_status(self._days_until(CONF_ROVINIETA_EXPIRA), ROVINIETA_PRAG_AVERTISMENT)
 
     @property
     def icon(self):
@@ -297,9 +298,7 @@ class RovinietaExpirySensor(_BaseSensor):
     @property
     def state(self):
         days = self._days_until(CONF_ROVINIETA_EXPIRA)
-        if days is None:
-            return None
-        return max(0, days)
+        return None if days is None else max(0, days)
 
 
 class RovinietaUrgencySensor(_BaseSensor):
@@ -313,21 +312,72 @@ class RovinietaUrgencySensor(_BaseSensor):
 
     @property
     def state(self):
-        days = self._days_until(CONF_ROVINIETA_EXPIRA)
-        if days is None:
-            return "nedefinit"
-        if days < 0:
-            return "critic"
-        if days <= PRAG_URGENT:
-            return "urgent"
-        if days <= ROVINIETA_PRAG_AVERTISMENT:
-            # FIX: era "averizare" (typo) — corectat la "avertizare"
-            return "avertizare"
-        return "ok"
+        return self._urgency_level(self._days_until(CONF_ROVINIETA_EXPIRA), ROVINIETA_PRAG_AVERTISMENT)
 
 
 # ---------------------------------------------------------------------------
-# Senzori Revizie
+# RCA (Asigurare obligatorie)
+# ---------------------------------------------------------------------------
+
+class RcaStatusSensor(_BaseSensor):
+    """Senzor status RCA."""
+
+    def __init__(self, data, entry_id):
+        super().__init__(data, entry_id)
+        self._attr_name = f"{data[CONF_NUME_AUTO]} RCA Status"
+        self._attr_unique_id = f"{entry_id}_rca_status"
+        self._attr_icon = "mdi:shield-car"
+
+    @property
+    def state(self):
+        return self._expiry_status(self._days_until(CONF_RCA_EXPIRA), RCA_PRAG_AVERTISMENT)
+
+    @property
+    def icon(self):
+        return self._expiry_icon(self.state)
+
+    @property
+    def extra_state_attributes(self):
+        days = self._days_until(CONF_RCA_EXPIRA)
+        return {
+            "data_intrare_vigoare": self._data.get(CONF_DATA_RCA),
+            "data_expirare": self._data.get(CONF_RCA_EXPIRA),
+            "zile_ramase": days if days is not None else "N/A",
+        }
+
+
+class RcaExpirySensor(_BaseSensor):
+    """Senzor zile până la expirare RCA."""
+
+    def __init__(self, data, entry_id):
+        super().__init__(data, entry_id)
+        self._attr_name = f"{data[CONF_NUME_AUTO]} RCA Expiră în"
+        self._attr_unit_of_measurement = "zile"
+        self._attr_unique_id = f"{entry_id}_rca_days"
+        self._attr_icon = "mdi:calendar-clock"
+
+    @property
+    def state(self):
+        days = self._days_until(CONF_RCA_EXPIRA)
+        return None if days is None else max(0, days)
+
+
+class RcaUrgencySensor(_BaseSensor):
+    """Senzor nivel urgență RCA."""
+
+    def __init__(self, data, entry_id):
+        super().__init__(data, entry_id)
+        self._attr_name = f"{data[CONF_NUME_AUTO]} RCA Urgență"
+        self._attr_unique_id = f"{entry_id}_rca_urgency"
+        self._attr_icon = "mdi:alert"
+
+    @property
+    def state(self):
+        return self._urgency_level(self._days_until(CONF_RCA_EXPIRA), RCA_PRAG_AVERTISMENT)
+
+
+# ---------------------------------------------------------------------------
+# Revizie
 # ---------------------------------------------------------------------------
 
 class ServiceInfoSensor(_BaseSensor):
@@ -401,22 +451,17 @@ class ServiceRecommendationSensor(_BaseSensor):
         self._attr_icon = "mdi:tooltip-account"
 
     def _compute(self) -> dict:
-        """Calculează km_diff, days_diff și recomandarea. Returnează un dict."""
+        """Calculează km_diff, days_diff și recomandarea."""
         current_km = self._data.get(CONF_KM_CURENTI, 0)
         service_km = self._data.get(CONF_KM_REVIZIE, 0)
         service_date = parse_date(self._data.get(CONF_DATA_REVIZIE))
 
         if not service_km or service_date is None:
-            return {
-                "recommendation": "Revizie neefectuată",
-                "km_diff": None,
-                "days_diff": None,
-            }
+            return {"recommendation": "Revizie neefectuată", "km_diff": None, "days_diff": None}
 
         km_diff = current_km - service_km
         days_diff = (date.today() - service_date).days
 
-        # Determinăm recomandarea — km are prioritate față de timp
         if km_diff >= REVIZIE_KM_PRAG:
             rec = "Revizie necesară (kilometraj)"
         elif days_diff >= REVIZIE_ZILE_PRAG:
@@ -428,11 +473,7 @@ class ServiceRecommendationSensor(_BaseSensor):
         else:
             rec = "În regulă"
 
-        return {
-            "recommendation": rec,
-            "km_diff": km_diff,
-            "days_diff": days_diff,
-        }
+        return {"recommendation": rec, "km_diff": km_diff, "days_diff": days_diff}
 
     @property
     def state(self):
@@ -440,19 +481,10 @@ class ServiceRecommendationSensor(_BaseSensor):
 
     @property
     def extra_state_attributes(self):
-        # FIX: înlocuit self.state_value (inexistent) cu calcul corect din _compute()
         c = self._compute()
         km_diff = c["km_diff"]
         days_diff = c["days_diff"]
-
-        km_pana = (
-            max(0, REVIZIE_KM_PRAG - km_diff) if km_diff is not None else "N/A"
-        )
-        zile_pana = (
-            max(0, REVIZIE_ZILE_PRAG - days_diff) if days_diff is not None else "N/A"
-        )
-
         return {
-            "km_pana_la_revizie": km_pana,
-            "zile_pana_la_revizie": zile_pana,
+            "km_pana_la_revizie": max(0, REVIZIE_KM_PRAG - km_diff) if km_diff is not None else "N/A",
+            "zile_pana_la_revizie": max(0, REVIZIE_ZILE_PRAG - days_diff) if days_diff is not None else "N/A",
         }
