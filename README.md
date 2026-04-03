@@ -5,16 +5,16 @@
 [![Home Assistant](https://img.shields.io/badge/Home_Assistant-2023.1%2B-blue?style=flat-square)](https://www.home-assistant.io/)
 [![License](https://img.shields.io/github/license/GeorgeRPI/masinamea?style=flat-square)](LICENSE)
 
-Integrare locală pentru Home Assistant care îți permite să gestionezi toate datele importante ale mașinii tale direct din interfața HA: **ITP**, **rovinietă**, **revizii**, **kilometraj** — cu notificări, calendar și senzori dinamici.
+Integrare locală pentru Home Assistant care îți permite să gestionezi toate datele importante ale mașinii tale direct din interfața HA: **ITP**, **Rovinietă**, **RCA**, **Revizii**, **Kilometraj** — cu notificări, calendar și senzori dinamici.
 
 ---
 
 ## ✨ Funcționalități
 
 - 🔴🟡🟢 **Status dinamic** — culori în funcție de cât timp a mai rămas (activ / aproape expirare / urgent / expirat)
-- ⏰ **Calendar integrat** — evenimente și reminder-uri automate pentru ITP, rovinietă și revizie
-- 🔔 **Notificări proactive** — avertizare cu 30 zile înainte de expirarea ITP-ului și 7 zile pentru rovinietă
-- 📊 **14+ senzori** — date detaliate pentru fiecare categorie
+- ⏰ **Calendar integrat** — evenimente și reminder-uri automate pentru ITP, Rovinietă, RCA și Revizie
+- 🔔 **Notificări proactive** — avertizare cu 30 zile înainte de expirarea ITP-ului și RCA, 7 zile pentru rovinietă
+- 📊 **17 senzori** — date detaliate pentru fiecare categorie
 - 🛠️ **Servicii HA** — actualizezi datele direct din interfață sau din automatizări, fără să reintri în configurare
 - 🚗 **Multi-mașină** — poți adăuga mai multe mașini ca intrări separate
 - 🇷🇴 **Interfață complet în română**
@@ -54,6 +54,7 @@ La prima configurare vei completa un formular cu datele mașinii:
 | Kilometraj curent | ✅ | Valoarea de pe bord |
 | Data ITP / Expirare ITP | — | Format `DD.MM.YYYY` |
 | Data rovinietă / Expirare rovinietă | — | Format `DD.MM.YYYY` |
+| Data intrare vigoare RCA / Expirare RCA | — | Format `DD.MM.YYYY` |
 | Data ultimei revizii | — | Format `DD.MM.YYYY` |
 | Km la ultima revizie | — | Kilometrajul la care s-a făcut revizia |
 | Componente schimbate la revizie | — | Ulei, filtre (bifă) |
@@ -76,6 +77,9 @@ Poți modifica orice dată ulterior din **Settings → Devices & Services → Ma
 | `sensor.<nume>_rovinieta_status` | Status rovinietă |
 | `sensor.<nume>_rovinieta_expira_in` | Zile până la expirarea rovinietei |
 | `sensor.<nume>_rovinieta_urgenta` | Nivel urgență rovinietă |
+| `sensor.<nume>_rca_status` | `activ` / `aproape_expirare` / `urgent` / `expirat` |
+| `sensor.<nume>_rca_expira_in` | Zile până la expirarea RCA |
+| `sensor.<nume>_rca_urgenta` | `ok` / `avertizare` / `urgent` / `critic` |
 | `sensor.<nume>_ultima_revizie` | Data și detalii ultima revizie |
 | `sensor.<nume>_km_de_la_revizie` | Km parcurși de la ultima revizie |
 | `sensor.<nume>_zile_de_la_revizie` | Zile de la ultima revizie |
@@ -110,6 +114,14 @@ data:
   data_expirare: "31.12.2025"
 ```
 
+### `masinamea.update_rca`
+```yaml
+service: masinamea.update_rca
+data:
+  data_intrare_vigoare: "01.01.2025"
+  data_expirare: "31.12.2025"
+```
+
 ### `masinamea.update_revizie`
 ```yaml
 service: masinamea.update_revizie
@@ -129,7 +141,7 @@ data:
   numar: "B 123 ABC"
 ```
 
-> **Notă:** Dacă ai mai multe mașini configurate, adaugă `entry_id` la fiecare apel de serviciu pentru a specifica ce mașină vrei să actualizezi. `entry_id`-ul îl găsești în **Settings → Devices & Services → Mașina Mea → (cele 3 puncte) → System information**.
+> **Notă:** Dacă ai mai multe mașini configurate, adaugă `entry_id` la fiecare apel. `entry_id`-ul îl găsești în **Settings → Devices & Services → Mașina Mea → (cele 3 puncte) → System information**.
 
 ---
 
@@ -137,62 +149,15 @@ data:
 
 Integrarea adaugă automat un calendar în HA cu următoarele evenimente:
 
-- **Expirare ITP** — ziua exactă de expirare
-- **Reminder ITP** — cu 30 de zile înainte
-- **Expirare rovinietă** — ziua exactă de expirare
-- **Reminder rovinietă** — cu 7 zile înainte
-- **Revizie recomandată** — la 6 luni după ultima revizie
-
----
-
-## 🎨 Exemplu dashboard
-
-Copiază cardul de mai jos în editorul YAML al dashboard-ului tău. Necesită [card-mod](https://github.com/thomasloven/lovelace-card-mod) instalat prin HACS.
-
-```yaml
-type: vertical-stack
-cards:
-  - type: entities
-    title: 🚗 Mașina Mea
-    entities:
-      - entity: sensor.masina_mea_informatii
-        name: Informații generale
-      - entity: sensor.masina_mea_kilometraj
-        name: Kilometraj
-      - entity: sensor.masina_mea_itp_status
-        name: Status ITP
-      - entity: sensor.masina_mea_itp_expira_in
-        name: ITP expiră în
-      - entity: sensor.masina_mea_rovinieta_status
-        name: Status rovinietă
-      - entity: sensor.masina_mea_rovinieta_expira_in
-        name: Rovinietă expiră în
-      - entity: sensor.masina_mea_recomandare_revizie
-        name: Recomandare revizie
-```
-
-> Înlocuiește `masina_mea` cu numele pe care l-ai dat mașinii tale la configurare (cu litere mici și spațiile înlocuite cu `_`).
-
----
-
-## 🔔 Exemplu automatizare — notificare expirare ITP
-
-```yaml
-alias: "Notificare ITP aproape de expirare"
-trigger:
-  - platform: numeric_state
-    entity_id: sensor.masina_mea_itp_expira_in
-    below: 30
-condition: []
-action:
-  - service: notify.mobile_app_telefonul_meu
-    data:
-      title: "⚠️ ITP aproape de expirare"
-      message: >
-        ITP-ul expiră în {{ states('sensor.masina_mea_itp_expira_in') }} zile.
-        Programează inspecția tehnică!
-mode: single
-```
+| Eveniment | Când apare |
+|-----------|-----------|
+| Expirare ITP | Ziua exactă de expirare |
+| Reminder ITP | Cu 30 de zile înainte |
+| Expirare Rovinietă | Ziua exactă de expirare |
+| Reminder Rovinietă | Cu 7 zile înainte |
+| Expirare RCA | Ziua exactă de expirare |
+| Reminder RCA | Cu 30 de zile înainte |
+| Revizie recomandată | La 6 luni după ultima revizie |
 
 ---
 
@@ -201,21 +166,39 @@ mode: single
 | Valoare | Semnificație |
 |---------|-------------|
 | `activ` | Document valid, nu expiră curând |
-| `aproape_expirare` | ITP < 30 zile / Rovinietă < 7 zile |
+| `aproape_expirare` | ITP/RCA < 30 zile / Rovinietă < 7 zile |
 | `urgent` | Expiră în 1–2 zile |
 | `expirat` | Document expirat |
 
 ---
 
+## 🔔 Exemplu automatizare — notificare expirare RCA
+
+```yaml
+alias: "Notificare RCA aproape de expirare"
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.masina_mea_rca_expira_in
+    below: 30
+condition: []
+action:
+  - service: notify.mobile_app_telefonul_meu
+    data:
+      title: "⚠️ RCA aproape de expirare"
+      message: >
+        Asigurarea RCA expiră în {{ states('sensor.masina_mea_rca_expira_in') }} zile.
+        Reînnoiește asigurarea!
+mode: single
+```
+
+---
+
 ## 🤝 Contribuții
 
-Contribuțiile sunt binevenite! Dacă găsești un bug sau ai o idee de funcționalitate nouă:
+Contribuțiile sunt binevenite! Dacă găsești un bug sau ai o idee nouă:
 
-1. Deschide un [Issue](https://github.com/GeorgeRPI/masinamea/issues) cu descrierea problemei
-2. Fork la repository
-3. Creează un branch nou: `git checkout -b feature/nume-functionalitate`
-4. Commit și push: `git commit -m "Adaugă funcționalitate X"` → `git push origin feature/nume-functionalitate`
-5. Deschide un Pull Request
+1. Deschide un [Issue](https://github.com/GeorgeRPI/masinamea/issues)
+2. Fork → branch nou → Pull Request
 
 ---
 
