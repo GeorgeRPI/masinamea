@@ -64,6 +64,29 @@ update_rovinieta:
       selector:
         text:
 
+update_rca:
+  name: Actualizează RCA
+  description: Actualizează datele asigurării RCA
+  fields:
+    entry_id:
+      name: ID integrare
+      description: entry_id-ul integrării (opțional dacă ai o singură mașină)
+      required: false
+      selector:
+        text:
+    data_intrare_vigoare:
+      name: Data intrare în vigoare
+      description: Data de la care este valabilă asigurarea RCA (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+    data_expirare:
+      name: Data expirare
+      description: Data când expiră asigurarea RCA (DD.MM.YYYY)
+      required: true
+      selector:
+        text:
+
 update_revizie:
   name: Actualizează revizie
   description: Înregistrează o nouă revizie
