@@ -54,7 +54,7 @@ La prima configurare vei completa un formular cu datele mașinii:
 | Kilometraj curent | ✅ | Valoarea de pe bord |
 | Data ITP / Expirare ITP | — | Format `DD.MM.YYYY` |
 | Data rovinietă / Expirare rovinietă | — | Format `DD.MM.YYYY` |
-| Data intrare vigoare RCA / Expirare RCA | — | Format `DD.MM.YYYY` |
+| Data de intrare în vigoare RCA / Expirare RCA | — | Format `DD.MM.YYYY` |
 | Data ultimei revizii | — | Format `DD.MM.YYYY` |
 | Km la ultima revizie | — | Kilometrajul la care s-a făcut revizia |
 | Componente schimbate la revizie | — | Ulei, filtre (bifă) |
