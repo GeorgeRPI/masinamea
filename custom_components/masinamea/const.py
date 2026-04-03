@@ -5,7 +5,7 @@ from datetime import datetime
 DOMAIN = "masinamea"
 PLATFORMS = [Platform.SENSOR, Platform.CALENDAR]
 
-# Constante configurare
+# Constante configurare generale
 CONF_NUME_AUTO = "nume_auto"
 CONF_NR_INMATRICULARE = "nr_inmatriculare"
 CONF_MARCA = "marca"
@@ -22,6 +22,10 @@ CONF_ITP_EXPIRA = "itp_expira"
 CONF_DATA_ROVINIETA = "data_rovinieta"
 CONF_ROVINIETA_EXPIRA = "rovinieta_expira"
 
+# RCA (Asigurare obligatorie)
+CONF_DATA_RCA = "data_rca"
+CONF_RCA_EXPIRA = "rca_expira"
+
 # Revizie
 CONF_DATA_REVIZIE = "data_revizie"
 CONF_KM_REVIZIE = "km_revizie"
@@ -36,9 +40,10 @@ STATE_ACTIV = "activ"
 STATE_EXPIRAT = "expirat"
 STATE_APROAPE_EXPIRARE = "aproape_expirare"
 
-# Praguri expirare
+# Praguri expirare (zile)
 ITP_PRAG_AVERTISMENT = 30       # 30 zile
 ROVINIETA_PRAG_AVERTISMENT = 7  # 7 zile
+RCA_PRAG_AVERTISMENT = 30       # 30 zile
 PRAG_URGENT = 2                 # 2 zile
 
 # Praguri revizie
@@ -48,9 +53,9 @@ REVIZIE_ZILE_PRAG = 365         # 1 an
 REVIZIE_ZILE_AVERTISMENT = 300  # ~10 luni
 
 
-def parse_date(date_str: str | None):
+def parse_date(date_str):
     """Convertește data din format DD.MM.YYYY în obiect date.
-    
+
     Funcție centralizată — folosită în sensor.py, calendar.py și __init__.py.
     """
     if not date_str:
