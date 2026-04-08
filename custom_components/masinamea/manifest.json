@@ -1,12 +1,12 @@
 {
   "domain": "masinamea",
   "name": "Mașina Mea",
-  "version": "1.1.0",
-  "requirements": [],
-  "dependencies": [],
   "codeowners": ["@GeorgeRPI"],
   "config_flow": true,
-  "iot_class": "local_polling",
+  "dependencies": [],
   "documentation": "https://github.com/GeorgeRPI/masinamea",
-  "issue_tracker": "https://github.com/GeorgeRPI/masinamea/issues"
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/GeorgeRPI/masinamea/issues",
+  "requirements": [],
+  "version": "1.1.0"
 }
