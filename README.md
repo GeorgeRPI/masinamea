@@ -1,7 +1,7 @@
 # 🚗 Mașina Mea — Home Assistant Integration
 
 [![GitHub Release](https://img.shields.io/github/v/release/GeorgeRPI/masinamea?style=flat-square)](https://github.com/GeorgeRPI/masinamea/releases)
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange?style=flat-square)](https://github.com/hacs/integration)
+   [![HACS](https://img.shields.io/badge/HACS-Custom-orange?style=flat-square)](https://github.com/GeorgeRPI/masinamea)
 [![Home Assistant](https://img.shields.io/badge/Home_Assistant-2023.1%2B-blue?style=flat-square)](https://www.home-assistant.io/)
 [![License](https://img.shields.io/github/license/GeorgeRPI/masinamea?style=flat-square)](LICENSE)
 
